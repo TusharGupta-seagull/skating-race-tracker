@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/* ─── Enterprise Design Tokens (Pixel-Accurate to Specification) ─────────── */
+@layer base {
+  :root {
+    /* Page & Shell Surfaces */
+    --page-bg: #E8E7E5;
+    --shell-bg: #FFFFFF;
+    --sidebar-bg: #FFFFFF;
+    --surface-secondary: #F7F7F5;
+    --surface-tertiary: #F0F0EE;
+    --surface-card: #FFFFFF;
+    
+    /* Borders */
+    --border: #E6E6E3;
+    --border-light: #EEEEEC;
+    --border-subtle: #F0F0EE;
+    --chart-grid: #ECECE9;
+    
+    /* Typography Colors */
+    --text-primary: #202020;
+    --text-secondary: #777777;
+    --text-muted: #999999;
+    --text-inverse: #FFFFFF;
+    
+    /* Functional Colors */
+    --primary-btn: #252525;
+    --primary-btn-hover: #383838;
+    
+    /* Performance Colors (Muted & Restrained) */
+    --perf-positive: #16a34a;
+    --perf-positive-bg: #f0fdf4;
+    --perf-positive-border: #bbf7d0;
+    
+    --perf-negative: #dc2626;
+    --perf-negative-bg: #fef2f2;
+    --perf-negative-border: #fecaca;
+    
+    /* Podiums */
+    --rank-gold-bg: #fef3c7;
+    --rank-gold-text: #92400e;
+    --rank-gold-border: #fde68a;
+    
+    --rank-silver-bg: #f1f5f9;
+    --rank-silver-text: #475569;
+    --rank-silver-border: #e2e8f0;
+    
+    --rank-bronze-bg: #ffedd5;
+    --rank-bronze-text: #9a3412;
+    --rank-bronze-border: #fed7aa;
+    
+    /* Radii */
+    --radius-shell: 12px;
+    --radius-card: 9px;
+    --radius-nav: 7px;
+    --radius-control: 6px;
+    --radius-sm: 4px;
+    
+    /* Sidebar width */
+    --sidebar-w: 194px;
+    --topbar-h: 40px;
+    
+    /* Shadows */
+    --shadow-shell: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 30px -4px rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-active-nav: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--shell-bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--shell-bg);
+    color: var(--text-primary);
+    overflow: hidden;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--shell-bg);
+    overflow: hidden;
+  }
+}
+
+/* ─── Typography Defaults ─────────────────────────────────────────────────── */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  p {
+    margin: 0;
+  }
+}
+
+/* ─── Utility Classes ─────────────────────────────────────────────────────── */
+@layer utilities {
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .time-tabular {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  /* Enterprise Card */
+  .ent-card {
+    background: var(--shell-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Two-panel analytics grid rule */
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  @media (min-width: 960px) {
+    .analytics-grid {
+      grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr) !important;
+    }
+  }
+
+  /* Compact Enterprise Inputs */
+  .ent-input {
+    width: 100%;
+    height: 30px;
+    background: #FAFAF9;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text-primary);
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    outline: none;
+  }
+  .ent-input:focus {
+    background: #FFFFFF;
+    border-color: #252525;
+    box-shadow: 0 0 0 1px #252525;
+  }
+  .ent-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* Enterprise Buttons */
+  .ent-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: var(--radius-control);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .ent-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .ent-btn-primary {
+    background: var(--primary-btn);
+    color: var(--text-inverse);
+    border-color: var(--primary-btn);
+  }
+  .ent-btn-primary:hover:not(:disabled) {
+    background: var(--primary-btn-hover);
+    border-color: var(--primary-btn-hover);
+  }
+
+  .ent-btn-secondary {
+    background: #FAFAF9;
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+  .ent-btn-secondary:hover:not(:disabled) {
+    background: #F0F0EE;
+    border-color: #D4D4D0;
+  }
+
+  .ent-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+  }
+  .ent-btn-ghost:hover:not(:disabled) {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+  }
+
+  .ent-btn-danger {
+    background: var(--perf-negative-bg);
+    color: var(--perf-negative);
+    border-color: var(--perf-negative-border);
+  }
+  .ent-btn-danger:hover:not(:disabled) {
+    background: #fee2e2;
+  }
+
+  /* Table styling */
+  .ent-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    text-align: left;
+  }
+  .ent-table th {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    background: #FAFAF9;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .ent-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+  .ent-table tr:hover td {
+    background: #FAFAF9;
+  }
+
+  /* Scrollbars */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D4D4D0 transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #D4D4D0;
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+}
