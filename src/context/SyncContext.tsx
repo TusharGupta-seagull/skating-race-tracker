@@ -29,7 +29,6 @@ export interface SyncStats {
 
 interface SignInOptions {
   clientIdOverride?: string;
-  customDemoAccount?: GoogleAccount;
 }
 
 interface SyncContextValue {
@@ -75,7 +74,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<GoogleAccount | null>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.AUTH);
-      return stored ? JSON.parse(stored) : null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.isRealGoogle) return parsed;
+        localStorage.removeItem(STORAGE_KEYS.AUTH);
+      }
+      return null;
     } catch {
       return null;
     }
@@ -216,20 +220,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     }
   }, [accessToken]);
 
-  // Sign in with Google (supports real GIS token flow + demo fallback)
+  // Sign in with Google (OAuth 2.0 flow via Google Identity Services)
   const signInWithGoogle = useCallback(
     async (options?: SignInOptions): Promise<{ success: boolean; requiresClientId?: boolean; error?: string }> => {
       setSyncError(null);
 
-      // 1. If explicit demo/test account requested
-      if (options?.customDemoAccount) {
-        setAccount(options.customDemoAccount);
-        localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(options.customDemoAccount));
-        setTimeout(() => triggerSync(), 200);
-        return { success: true };
-      }
-
-      // 2. Real Google OAuth 2.0 flow
+      // Real Google OAuth 2.0 flow
       const effectiveClientId = options?.clientIdOverride?.trim() || clientId.trim();
 
       if (!effectiveClientId) {

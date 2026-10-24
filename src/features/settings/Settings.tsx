@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, DEFAULT_CATEGORIES } from '@/db';
-import type { Race } from '@/types';
-import { nanoid } from '@/lib/nanoid';
 import {
   Trash2,
   CheckCircle2,
-  Sparkles,
   RefreshCw,
   LogOut,
   Clock,
@@ -21,90 +18,6 @@ import {
 import { GoogleIcon, GoogleDriveIcon } from '@/components/icons/GoogleIcons';
 import { useSync, type SyncFrequency } from '@/context/SyncContext';
 
-const SAMPLE_RACES: Omit<Race, 'id' | 'createdAt' | 'updatedAt'>[] = [
-  {
-    eventName: 'National Speed Championships 2026',
-    eventDate: '2026-03-15',
-    eventYear: 2026,
-    categoryId: 'cat-500m',
-    skaterTimeMs: 42850, // 00:42.85 (PB)
-    skaterRank: 1,
-    topPerformers: [
-      { id: 'p1', name: 'Myself', timeMs: 42850, rank: 1 },
-      { id: 'p2', name: 'Lars Van Der Bilt', timeMs: 43100, rank: 2 },
-      { id: 'p3', name: 'Viktor Morozov', timeMs: 43450, rank: 3 },
-    ],
-    notes: 'Flawless second turn crossover. New personal best in 500m + D.',
-  },
-  {
-    eventName: 'Winter Regional Cup Stage 3',
-    eventDate: '2026-02-18',
-    eventYear: 2026,
-    categoryId: 'cat-500m',
-    skaterTimeMs: 43400, // 00:43.40
-    skaterRank: 2,
-    topPerformers: [
-      { id: 'p1', name: 'Lars Van Der Bilt', timeMs: 43150, rank: 1 },
-      { id: 'p2', name: 'Myself', timeMs: 43400, rank: 2 },
-      { id: 'p3', name: 'Kenji Sato', timeMs: 43900, rank: 3 },
-    ],
-    notes: 'Good pacing, slightly wide on the final exit.',
-  },
-  {
-    eventName: 'City Sprint Open 2026',
-    eventDate: '2026-01-20',
-    eventYear: 2026,
-    categoryId: 'cat-500m',
-    skaterTimeMs: 44100, // 00:44.10
-    skaterRank: 3,
-    topPerformers: [
-      { id: 'p1', name: 'Kenji Sato', timeMs: 43800, rank: 1 },
-      { id: 'p2', name: 'Lars Van Der Bilt', timeMs: 43950, rank: 2 },
-      { id: 'p3', name: 'Myself', timeMs: 44100, rank: 3 },
-    ],
-    notes: 'First race of the season. Strong endurance.',
-  },
-  {
-    eventName: 'National Speed Championships 2026',
-    eventDate: '2026-03-16',
-    eventYear: 2026,
-    categoryId: 'cat-1000m',
-    skaterTimeMs: 88500, // 01:28.50 (PB)
-    skaterRank: 2,
-    topPerformers: [
-      { id: 'p1', name: 'Viktor Morozov', timeMs: 87900, rank: 1 },
-      { id: 'p2', name: 'Myself', timeMs: 88500, rank: 2 },
-      { id: 'p3', name: 'Alexandre Roy', timeMs: 89200, rank: 3 },
-    ],
-    notes: 'Maintained 28s lap splits consistently.',
-  },
-  {
-    eventName: 'Winter Regional Cup Stage 2',
-    eventDate: '2026-02-05',
-    eventYear: 2026,
-    categoryId: 'cat-1000m',
-    skaterTimeMs: 90200, // 01:30.20
-    skaterRank: 3,
-    topPerformers: [
-      { id: 'p1', name: 'Viktor Morozov', timeMs: 88700, rank: 1 },
-      { id: 'p2', name: 'Alexandre Roy', timeMs: 89400, rank: 2 },
-      { id: 'p3', name: 'Myself', timeMs: 90200, rank: 3 },
-    ],
-  },
-  {
-    eventName: 'Annual Rink Velocity Trial',
-    eventDate: '2026-03-01',
-    eventYear: 2026,
-    categoryId: 'cat-1lap',
-    skaterTimeMs: 14200, // 00:14.20 (PB)
-    skaterRank: 1,
-    topPerformers: [
-      { id: 'p1', name: 'Myself', timeMs: 14200, rank: 1 },
-      { id: 'p2', name: 'Marco Rossi', timeMs: 14450, rank: 2 },
-      { id: 'p3', name: 'Kenji Sato', timeMs: 14600, rank: 3 },
-    ],
-  },
-];
 
 export default function Settings() {
   const races = useLiveQuery(() => db.races.toArray(), []) ?? [];
@@ -157,13 +70,6 @@ export default function Settings() {
     }
   };
 
-  const handleDemoSignIn = async (emailOverride?: string) => {
-    const email = emailOverride?.trim() || 'skater.athlete@gmail.com';
-    const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) || 'Speed Skater';
-    await signInWithGoogle({ customDemoAccount: { email, name } });
-    setShowSetupModal(false);
-    showNotification(`Signed in with Demo Google Account (${email}).`);
-  };
 
   const handleManualSync = async () => {
     const success = await triggerSync();
@@ -194,27 +100,6 @@ export default function Settings() {
     showNotification('All race records cleared. Default categories restored.');
   };
 
-  const handleLoadSampleData = async () => {
-    const now = Date.now();
-    await db.transaction('rw', db.races, db.categories, async () => {
-      // Ensure default categories exist
-      for (const cat of DEFAULT_CATEGORIES) {
-        const exists = await db.categories.get(cat.id);
-        if (!exists) await db.categories.add(cat);
-      }
-
-      // Add sample races
-      for (const r of SAMPLE_RACES) {
-        await db.races.add({
-          ...r,
-          id: nanoid(),
-          createdAt: now,
-          updatedAt: now,
-        });
-      }
-    });
-    showNotification('Sample speed skating races loaded successfully.');
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -387,21 +272,6 @@ export default function Settings() {
                 <span>{clientId ? 'Edit Client ID' : 'OAuth Client ID Setup'}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleDemoSignIn()}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '11px',
-                  color: 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: '4px',
-                }}
-              >
-                Or test with demo account
-              </button>
             </div>
 
             {clientId && (
@@ -485,12 +355,12 @@ export default function Settings() {
                         fontSize: '9.5px',
                         padding: '1px 5px',
                         borderRadius: '4px',
-                        backgroundColor: account?.isRealGoogle ? '#EFF6FF' : 'var(--surface-tertiary)',
-                        color: account?.isRealGoogle ? '#1D4ED8' : 'var(--text-secondary)',
+                        backgroundColor: '#EFF6FF',
+                        color: '#1D4ED8',
                         fontWeight: 600,
                       }}
                     >
-                      {account?.isRealGoogle ? 'Google OAuth 2.0' : 'Demo Account'}
+                      Google OAuth 2.0
                     </span>
                   </div>
                   <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
@@ -735,21 +605,12 @@ export default function Settings() {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', paddingTop: '6px' }}>
               <button
                 type="button"
-                onClick={() => handleDemoSignIn()}
-                className="ent-btn ent-btn-ghost"
-                style={{ height: '32px', padding: '0 10px', fontSize: '11.5px' }}
-              >
-                Use Quick Demo Account
-              </button>
-
-              <button
-                type="button"
                 onClick={() => {
                   if (clientIdInput.trim()) {
                     setClientId(clientIdInput.trim());
                     handleGoogleSignInClick();
                   } else {
-                    alert('Please enter a Google Cloud OAuth Client ID first, or click "Use Quick Demo Account".');
+                    alert('Please enter a Google Cloud OAuth Client ID first.');
                   }
                 }}
                 className="ent-btn ent-btn-primary"
@@ -763,32 +624,6 @@ export default function Settings() {
         </div>
       )}
 
-      {/* ─── Testing / Demonstration Tool ───────────────────────────────── */}
-      <div className="ent-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <span
-          style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          DEMO DATA GENERATOR
-        </span>
-        <p style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>
-          Populate realistic speed skating race records across 500m + D, 1000m, and 1 Lap categories to verify charts, personal bests, and analytics.
-        </p>
-        <div style={{ marginTop: '4px' }}>
-          <button
-            type="button"
-            onClick={handleLoadSampleData}
-            className="ent-btn ent-btn-secondary"
-          >
-            <Sparkles size={12} /> Load Realistic Demo Races
-          </button>
-        </div>
-      </div>
 
       {/* ─── Destructive Reset ─────────────────────────────────────────── */}
       <div className="ent-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #fee2e2' }}>
